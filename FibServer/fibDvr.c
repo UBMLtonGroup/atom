@@ -84,7 +84,7 @@ r0(); /* fibDvr.wait */
 }
 if (__clock % 20 == 1) {
 r1(); /* fibDvr.getAns */
-printf(“i: %lld, fib(i): %lld\n”, e2, e6);
+printf("i: %lld, fib(i): %lld\n", e2, e6);
 }
 
 __clock = __clock + 1;
