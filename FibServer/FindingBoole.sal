@@ -1,0 +1,61 @@
+FindingBoole: CONTEXT =
+
+BEGIN
+
+B: TYPE = BOOLEAN;
+
+B2ARY: TYPE = { False, Nor, NorNot, NotA, AndNot, NotB, Xor, Nand
+, And, Eqv, B, NandNot, A, OrNot, Or, True};
+
+app(f: B2ARY, a: B, b: B): B =
+IF f = False THEN FALSE
+ELSIF f = Nor THEN NOT (a OR b)
+ELSIF f = NorNot THEN NOT a AND b
+ELSIF f = NotA THEN NOT a
+ELSIF f = AndNot THEN a AND NOT b
+ELSIF f = NotB THEN NOT b
+ELSIF f = Xor THEN a XOR b
+ELSIF f = Nand THEN NOT (a AND b)
+ELSIF f = And THEN a AND b
+ELSIF f = Eqv THEN NOT (a XOR b)
+ELSIF f = B THEN b
+ELSIF f = NandNot THEN NOT a OR b
+ELSIF f = A THEN a
+ELSIF f = OrNot THEN a OR NOT b
+ELSIF f = Or THEN a OR b
+ELSE TRUE
+ENDIF;
+
+spec(b0: B, b1: B, b2: B, b3: B, b4: B, b5: B): B =
+% (b0 AND b1) OR (b2 AND b3) OR (b4 AND b5);
+(NOT (b0 AND ((b1 OR b2) XOR b3)) AND b4) XOR b5;
+%TRUE;
+
+spec1(b0: B, b1: B, b2: B, b3: B, b4: B, b5: B): B =
+((b0 AND ((NOT (b1 OR b2)) <=> b3)) OR NOT b4) <=> b5;
+
+f(b0: B, b1: B, b2: B, b3: B, b4: B, b5: B):
+[[B2ARY, B2ARY, B2ARY, B2ARY, B2ARY] -> B] =
+LAMBDA (f0: B2ARY, f1: B2ARY, f2: B2ARY, f3: B2ARY, f4: B2ARY):
+app(f0, app(f1, app(f2, b0,
+app(f3, app(f4, b1, b2),
+b3)),
+b4),
+b5);
+
+m: MODULE =
+BEGIN
+INPUT b0, b1, b2, b3, b4, b5 : B
+LOCAL f0, f1, f2, f3, f4 : B2ARY
+OUTPUT equiv : B
+
+DEFINITION
+equiv = FORALL (b0: B, b1: B, b2: B, b3: B, b4: B, b5: B):
+spec(b0, b1, b2, b3, b4, b5)
+= f(b0, b1, b2, b3, b4, b5)(f0, f1, f2, f3, f4);
+END;
+
+instance : THEOREM m |- NOT equiv;
+
+instance2 : THEOREM m |- spec(b0, b1, b2, b3, b4, b5) = spec1(b0, b1, b2, b3, b4, b5);
+END
