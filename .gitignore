@@ -3,3 +3,5 @@
 FibServer/FibDvr
 */sonar_example*
 *.hi
+Sensor/sensor
+Sensor/atom_example*
