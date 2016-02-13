@@ -3,11 +3,34 @@ module AtomEx2
 
 import Language.Atom
 
--- | Invoke the atom compiler.
+-- | Invoke the Atom compiler
 compileFib :: IO ()
 compileFib = do
-  compile "fibDev" $ fibDev
-  compile "fibDvr" $ fibDvr
+  (schedule, _, _, _, _) <- compile "fibDev" defaults { cCode = prePostCode } $ fibDev
+  compile "fibDvr" defaults { cCode = prePostCode }  $ fibDvr
+  putStrLn $ reportSchedule schedule
+
+prePostCode :: [Name] -> [Name] -> [(Name, Type)] -> (String, String)
+prePostCode _ _ _ =
+  ( unlines
+    [ "#include <stdlib.h>"
+    , "#include <stdio.h>"
+    ]
+  , unlines
+    [ "int main() {"
+    , "  while(__clock < 500) {"
+    , "    fibDvr(); fibDev(); " 
+    , "  }"
+    , "  return 0;"
+    , "}"
+    ]
+  )
+
+-- | Invoke the atom compiler.
+--compileFib :: IO ()
+--compileFib = do
+--  compile "fibDev" $ fibDev
+--  compile "fibDvr" $ fibDvr
 
 -- Fibonacci device: takes an index x from an external client and returns
 -- fib(x).
@@ -17,7 +40,7 @@ fibDev = period 3 $ do
   snd      <- word64 "snd" 1 -- fib(1)
   ans      <- word64 "ans" 0 -- answer returned
   -- external signals --
-  x        <- word64' "x" -- index value from driver
+  x        <- word64' "x"  -- index value from driver
   newInd   <- bool' "newInd" -- index from driver ready 
   ----------------------
   i        <- word64 "i" 0 -- local copy of received index

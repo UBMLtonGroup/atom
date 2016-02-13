@@ -1,3 +1,5 @@
 *.o
 *~
 FibServer/FibDvr
+*/sonar_example*
+*.hi
