@@ -10,3 +10,9 @@ Haskell Atom RT Demo
 
 ```cabal install atom```
 
+##Erlang 
+Compile:
+```erlc sonar.erl``` 
+
+Run:
+```erl -noshell -s sonar start -s init stop```
